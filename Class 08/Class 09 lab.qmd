@@ -1,0 +1,326 @@
+---
+title: "Class 08 Mini project"
+author: Lorena Cuellar
+format: pdf
+toc: true
+---
+
+# Save my input data file into my Project directory
+
+```{r}
+fna.data <- "WisconsinCancer.csv"
+```
+
+```{r}
+wisc.df <- read.csv(fna.data, row.names=1)
+head(wisc.df)
+```
+
+
+```{r}
+# We can use -1 here to remove the first column
+wisc.data <- wisc.df[,-1]
+head(wisc.data)
+```
+
+
+# Create diagnosis vector for later 
+```{r}
+diagnosis <- as.factor(wisc.df[,1])
+```
+
+
+# Q1
+> Q1. How many observations are in this dataset?
+
+```{r}
+nrow(wisc.data)
+```
+
+
+# Q2
+> Q2. How many of the observations have a malignant diagnosis?
+
+```{r}
+table(wisc.df$diagnosis)
+```
+212 observations
+
+# Q3
+> Q3. How many variables/features in the data are suffixed with _mean?
+> Ans: 10 variables 
+
+```{r}
+colnames(wisc.data)
+```
+
+
+The function grep() could be useful here. How can I get it to work
+```{r}
+grep("_mean", colnames(wisc.data))
+```
+
+```{r}
+length(grep("_mean", colnames(wisc.data)))
+```
+
+
+
+# Principal Component Analysis (PCA)
+
+# Q4
+First I will need check whether we need to scale 
+
+Check columns and standard deviations
+
+```{r}
+colnames(wisc.data)
+apply(wisc.data,2,sd)
+```
+
+#Q4
+
+I will perform PCA on wisc.data by completing the following code
+
+
+```{r}
+wisc.pr <- prcomp(wisc.data, scale = TRUE) 
+summary(wisc.pr)
+```
+
+
+```{r}
+plot(wisc.pr)
+```
+
+
+
+>Q4. From your results, what proportion of the original variance is captured by the first principal components (PC1)?
+
+O.4427 as shown in code above
+
+
+# Q5
+
+>Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data?
+
+```{r}
+y <- summary(wisc.pr)
+attributes(y)
+
+which(y$importance[3,] > 0.7)[1]
+```
+
+3 PCs are required
+
+# Q6
+
+> Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+
+
+```{r}
+y <- summary(wisc.pr)
+attributes(y)
+which(y$importance[3,] > 0.9)[1]
+```
+
+7 PCs are required 
+
+
+# Q7
+> Q7. What stands out to you about this plot? Is it easy or difficult to understand? Why?
+
+```{r}
+biplot(wisc.pr)
+```
+
+This plot is very clustered together and it is very difficult to understand. You can't really get anything from it because it is messy.
+
+
+Let's make a PC plot (a.k.a. "score plot)
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], col=diagnosis, xlab = "PC1", ylab = "PC2")
+```
+
+# Q8
+
+> Q8. Generate a similar plot for principal components 1 and 3. What do you notice about these plots?
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,3], col=diagnosis, xlab = "PC1", ylab = "PC3")
+```
+
+I notice that the clusters are further down in the graph 
+
+
+# Section 5: Combining Methods
+
+
+
+## Combine PCA with clustering
+
+I want to cluster in "PC space"
+
+
+The `hclust()` functions wants a distance matrix input
+```{r}
+d <- dist(wisc.pr$x[,1:3])
+wisc.pr.hclust <- hclust(d, method = "ward.D2" )
+plot(wisc.pr.hclust)
+```
+
+Find my cluster membership vector.
+
+```{r}
+grps <- cutree(wisc.pr.hclust, k=2)
+table(grps)
+
+```
+
+```{r}
+table(diagnosis, grps)
+```
+
+
+
+```{r}
+plot(wisc.pr$x[,1:2], col=grps)
+```
+
+# Section 2
+
+
+```{r}
+# Calculate variance of each component
+pr.var <- wisc.pr$sdev^2
+head(pr.var)
+```
+
+Variance explained by each principal component: pve
+
+```{r}
+pve <- pr.var/sum(pr.var)
+
+# Plot variance explained for each principal component
+
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+```
+
+
+```{r}
+# Alternative scree plot of the same data, note data driven y-axis
+
+barplot(pve, ylab = "Precent of Variance Explained",
+     names.arg=paste0("PC",1:length(pve)), las=2, axes = FALSE)
+axis(2, at=pve, labels=round(pve,2)*100 )
+```
+# Q9
+> Q9. For the first principal component, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean?
+
+```{r}
+concave.points_mean <- wisc.pr$rotation[,1]
+concave.points_mean
+```
+Answer:     -0.26085376
+
+# Q10
+> Q10. What is the minimum number of principal components required to explain 80% of the variance of the data?
+
+```{r}
+which(y$importance[3,] >= 0.8)[1]
+
+```
+
+
+Scale the wisc.data data using the "scale()" function
+```{r}
+data.scaled <- scale(wisc.data)
+```
+
+
+Calculate the (Euclidean) distances between all pairs of observations in the new scaled dataset and assign the result to data.dist.
+
+```{r}
+data.dist <- dist(data.scaled)
+```
+
+
+
+```{r}
+wisc.hclust <- hclust(data.dist)
+wisc.hclust
+```
+
+# Q11
+> Q11. Using the plot() and abline() functions, what is the height at which the clustering model has 4 clusters?
+
+```{r}
+plot(wisc.hclust)
+abline(a=19, b=0, col="red", lty=2)
+```
+
+The height is 19
+
+```{r}
+wisc.hclust.clusters <- cutree(wisc.hclust, k=4)
+```
+
+```{r}
+table(wisc.hclust.clusters, diagnosis)
+```
+
+# Q12
+> Q12. Can you find a better cluster vs diagnoses match by cutting into a different number of clusters between 2 and 10?
+
+```{r}
+wisc.hclust.clusters <- cutree(wisc.hclust, k=2)
+table(wisc.hclust.clusters, diagnosis)
+
+```
+
+
+# Q13
+> Q13. Which method gives your favorite results for the same data.dist dataset? Explain your reasoning.
+
+The method = "ward.D2" because it squares the dissimilarities between the two 
+
+# Q15
+> Q15. How well does the newly created model with four clusters separate out the two diagnoses?
+
+
+```{r}
+## Use the distance along the first 7 PCs for clustering i.e. wisc.pr$x[, 1:7]
+
+d <- dist(wisc.pr$x[,1:7])
+wisc.pr.hclust <- hclust(d, method = "ward.D2" )
+plot(wisc.pr.hclust)
+wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=2)
+
+# Compare to actual diagnoses
+table(wisc.pr.hclust.clusters, diagnosis)
+
+```
+
+It is worse because there is a lot of left over data compared to the PCA before.
+
+
+
+
+# Q17
+> Q17. Which of your analysis procedures resulted in a clustering model with the best specificity? How about sensitivity?
+
+A: #dianosis(kmeans)
+Sensitivity: 175/(175+14) = 0.926
+Specificity 343/(343+14) = 0.961
+
+#clustering(pca)
+Sensitivity: 165/(165+40)= 0.805
+Specificity: 343/(343+12)= 0.967
+
+The best sensitivity is from the diagnosis(kmeans) and the best specificity is from the PCA clustering.
+
+
+kmeans for best sensitivity
