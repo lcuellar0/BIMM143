@@ -6,4 +6,6 @@ Here is a portfolio of my work for [BIMM143](https://bioboot.github.io/bimm143_F
 
 - Class 10: [Halloween Candy Mini-Project](https://github.com/lcuellar0/BIMM143/blob/main/Class10/Lab%2010-%20Halloween%20Mini%20Project.md) | [code](https://github.com/lcuellar0/BIMM143/tree/main/Class10)
 
-- Class 9: [Structural Bioinformatics](
+- Class 9: [Structural Bioinformatics](https://github.com/lcuellar0/BIMM143/blob/main/Class%2008/Class%2009%20lab.md)
+
+Class 13: [DeSeq Lab](https://github.com/lcuellar0/BIMM143/blob/main/Class%2012/Lab-12.pdf)
