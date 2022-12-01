@@ -1,7 +1,7 @@
 ---
 title: "Class 08 Mini project"
 author: Lorena Cuellar
-format: pdf
+format: gfm
 toc: true
 ---
 
