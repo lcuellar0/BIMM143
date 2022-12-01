@@ -8,4 +8,4 @@ Here is a portfolio of my work for [BIMM143](https://bioboot.github.io/bimm143_F
 
 - Class 9: [Structural Bioinformatics](https://github.com/lcuellar0/BIMM143/blob/main/Class%2008/Class%2009%20lab.md)
 
-Class 13: [DeSeq Lab](https://github.com/lcuellar0/BIMM143/blob/main/Class%2012/Lab-12.pdf)
+- Class 13: [DeSeq Lab](https://github.com/lcuellar0/BIMM143/blob/main/Class%2012/Lab-12.pdf)
